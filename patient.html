@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Setu – Patient Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body {font-family: Arial, sans-serif; margin:0; display:flex; flex-direction:column; height:100vh;}
+    #nav {background:#2c3e50; color:#ecf0f1; padding:0.5rem; display:flex; gap:1rem;}
+    #nav a {color:#ecf0f1; text-decoration:none;}
+    #map {flex:1;}
+    .panel {padding:1rem; background:#f8f9fa;}
+    table {width:100%; border-collapse:collapse;}
+    th, td {border:1px solid #ccc; padding:0.5rem; text-align:left;}
+  </style>
+</head>
+<body>
+  <div id="nav">
+    <a href="/dashboards/health_worker.html">Health Worker</a>
+    <a href="/dashboards/patient.html">Patient</a>
+    <a href="/dashboards/admin.html">Admin</a>
+    <a href="/dashboards/analytics.html">Analytics</a>
+  </div>
+  <div class="panel">
+    <h2>My Referrals</h2>
+    <table id="referralTable">
+      <thead><tr><th>ID</th><th>From</th><th>To</th><th>Specialist</th><th>Status</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <script>
+    // Simple polling to fetch referrals (in a real app use WebSocket)
+    async function loadReferrals(){
+      const resp = await fetch('/api/referral_list'); // placeholder endpoint – not implemented, will return empty
+      if (!resp.ok) return;
+      const list = await resp.json();
+      const tbody = document.querySelector('#referralTable tbody');
+      tbody.innerHTML = '';
+      list.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.id}</td><td>${r.from}</td><td>${r.to}</td><td>${r.specialist}</td><td>Completed</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    loadReferrals();
+    setInterval(loadReferrals, 5000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Setu – Health Worker Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body {font-family: Arial, sans-serif; margin:0; display:flex; flex-direction:column; height:100vh;}
+    #nav {background:#2c3e50; color:#ecf0f1; padding:0.5rem; display:flex; gap:1rem;}
+    #nav a {color:#ecf0f1; text-decoration:none;}
+    #map {flex:1;}
+    .panel {padding:1rem; background:#f8f9fa;}
+    button {padding:0.5rem 1rem; margin-top:0.5rem;}
+  </style>
+</head>
+<body>
+  <div id="nav">
+    <a href="health_worker.html">Health Worker</a>
+    <a href="patient.html">Patient</a>
+    <a href="admin.html">Admin</a>
+    <a href="analytics.html">Analytics</a>
+  </div>
+  <div id="map"></div>
+  <div class="panel" id="info"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([17.1,79.3],8);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'&copy; OpenStreetMap'}).addTo(map);
+    let facilities = [];
+    fetch('/api/facilities').then(r=>r.json()).then(data=>{facilities=data; renderFacilities();});
+    function renderFacilities(){
+      facilities.forEach(f=>{
+        const marker = L.marker([f.lat,f.lon]).addTo(map).bindPopup(`<b>${f.name}</b><br/>Specialists: ${f.specialists.join(', ')}`);
+        marker.on('click',()=>{startReferral(f);});
+      });
+    }
+    async function startReferral(from){
+      const specialist = from.specialists.includes('Cardiology') ? 'Cardiology' : (from.specialists[0]||'Cardiology');
+      const resp = await fetch(`/api/recommend/${from.id}/${specialist}`);
+      const candidates = await resp.json();
+      const best = candidates[0];
+      const info = document.getElementById('info');
+      info.innerHTML = `<strong>From:</strong> ${from.name}<br/><strong>Suggested:</strong> ${best.facility.name}<br/>Score: ${best.score.toFixed(2)}<br/><button id='confirm'>Confirm Referral</button>`;
+      document.getElementById('confirm').onclick = async()=>{
+        await fetch('/api/referral',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({from:from.id,to:best.facility.id,specialist})});
+        info.innerHTML = '<em>Referral confirmed.</em>';
+      };
+    }
+  </script>
+</body>
+</html>

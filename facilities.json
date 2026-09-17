@@ -1,0 +1,115 @@
+[
+  {
+    "id": "PHC_NAKREKAL",
+    "name": "PHC Nakrekal (Rural Health Post)",
+    "district": "Nalgonda",
+    "type": "Primary Health Centre",
+    "lat": 17.1652,
+    "lon": 79.4312,
+    "specialists": [
+      "General Medicine",
+      "Community Health"
+    ],
+    "diagnostics": [
+      "Basic Lab",
+      "ECG (Intermittent)"
+    ],
+    "capacity": 4,
+    "acceptanceRate": 0.65,
+    "status": "Operational"
+  },
+  {
+    "id": "AH_SURYAPET",
+    "name": "Area Hospital \u2013 Suryapet",
+    "district": "Suryapet",
+    "type": "Secondary Care",
+    "lat": 17.1439,
+    "lon": 79.6239,
+    "specialists": [
+      "General Medicine",
+      "Pediatrics",
+      "Obstetrics"
+    ],
+    "diagnostics": [
+      "X-Ray",
+      "Ultrasound",
+      "Full Pathology"
+    ],
+    "capacity": 2,
+    "acceptanceRate": 0.42,
+    "status": "Specialist On Leave",
+    "note": "Cardiology specialist unavailable"
+  },
+  {
+    "id": "GGH_NALGONDA",
+    "name": "Govt General Hospital \u2013 Nalgonda",
+    "district": "Nalgonda",
+    "type": "District Teaching Hospital",
+    "lat": 17.0575,
+    "lon": 79.2689,
+    "specialists": [
+      "Cardiology",
+      "Neurology",
+      "Orthopedics",
+      "General Surgery",
+      "ICU"
+    ],
+    "diagnostics": [
+      "CT Scan",
+      "Cath Lab",
+      "2D Echo",
+      "TMT",
+      "Blood Bank"
+    ],
+    "capacity": 18,
+    "acceptanceRate": 0.99,
+    "status": "High Capacity & Active Specialists",
+    "contact": "+91 8682 222100"
+  },
+  {
+    "id": "DH_KHAMMAM",
+    "name": "District Headquarters Hospital \u2013 Khammam",
+    "district": "Khammam",
+    "type": "Tertiary Care Center",
+    "lat": 17.2473,
+    "lon": 80.1514,
+    "specialists": [
+      "Cardiology",
+      "Nephrology",
+      "General Medicine"
+    ],
+    "diagnostics": [
+      "Dialysis",
+      "CT Scan",
+      "Echo",
+      "Blood Bank"
+    ],
+    "capacity": 9,
+    "acceptanceRate": 0.82,
+    "status": "Operational",
+    "contact": "+91 8742 224300"
+  },
+  {
+    "id": "NIMS_HYD",
+    "name": "NIMS \u2013 Hyderabad (Emergency Hub)",
+    "district": "Hyderabad",
+    "type": "Apex Autonomous Tertiary",
+    "lat": 17.4206,
+    "lon": 78.4552,
+    "specialists": [
+      "Cardiology",
+      "Neurology",
+      "Trauma ICU",
+      "Emergency Surgery"
+    ],
+    "diagnostics": [
+      "Advanced Cath Lab",
+      "MRI 3T",
+      "Cardiac ICU"
+    ],
+    "capacity": 35,
+    "acceptanceRate": 0.99,
+    "status": "Emergency Level 1 Bypass Center",
+    "contact": "+91 40 2348 9000"
+  }
+]

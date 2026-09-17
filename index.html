@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SETU (సేతు) — Smart Referral & Care Continuity Platform</title>
+  
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #1a73e8; /* Google Maps Blue */
+      --primary-dark: #1557b0;
+      --success: #1e8e3e; /* Google Green */
+      --warning: #f9ab00; /* Google Yellow */
+      --danger: #d93025; /* Google Red */
+      --slate-900: #202124;
+      --slate-800: #3c4043;
+      --slate-700: #5f6368;
+      --slate-600: #70757a;
+      --slate-100: #f1f3f4;
+      --slate-50: #f8f9fa;
+      --border: #dadce0;
+      --shadow: 0 1px 3px rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+      --shadow-sm: 0 1px 2px 0 rgba(60,64,67,0.3);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f8f9fa;
+      color: var(--slate-900);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background: #fff;
+      color: var(--slate-900);
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .logo-badge {
+      background: linear-gradient(135deg, #1a73e8, #4285f4);
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(66, 133, 244, 0.4);
+    }
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--slate-900);
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+    }
+    .brand-telugu {
+      font-size: 1rem;
+      color: #1a73e8;
+      font-weight: 600;
+    }
+    .brand-sub {
+      font-size: 0.72rem;
+      color: var(--slate-700);
+      font-weight: 500;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* Action Buttons */
+    .btn-demo-pulse {
+      background: #1e8e3e;
+      color: #fff;
+      border: none;
+      padding: 0.55rem 1.15rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      animation: pulse 2s infinite;
+      transition: all 0.2s ease;
+    }
+    .btn-demo-pulse:hover {
+      background: #137333;
+      transform: translateY(-1px);
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(30, 142, 62, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(30, 142, 62, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(30, 142, 62, 0); }
+    }
+
+    .btn-gps {
+      background: #e8f0fe;
+      color: #1a73e8;
+      border: 1px solid #d2e3fc;
+      padding: 0.55rem 1rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-gps:hover {
+      background: #d2e3fc;
+    }
+
+    /* Tab Navigation */
+    .tab-nav {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+      overflow-x: auto;
+      padding-bottom: 0.2rem;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tab-btn {
+      background: var(--slate-100);
+      border: 1px solid transparent;
+      color: var(--slate-700);
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover {
+      background: #e8eaed;
+      color: var(--slate-900);
+    }
+    .tab-btn.active {
+      background: #e8f0fe;
+      color: #1a73e8;
+      border-color: #aecbfa;
+      font-weight: 700;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      padding: 1rem;
+      max-width: 1560px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Layout Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 1rem;
+    }
+    @media (max-width: 1024px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Cards */
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 2px rgba(60,64,67,0.15);
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .card-header {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--slate-900);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .card-body {
+      padding: 1rem;
+    }
+
+    /* Map Box & Controls */
+    .map-wrapper {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    #interactiveMapBox {
+      height: 500px;
+      width: 100%;
+      z-index: 10;
+    }
+    @media (max-width: 768px) {
+      #interactiveMapBox { height: 380px; }
+    }
+
+    /* Floating Search Bar on Map */
+    .map-search-bar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      max-width: 420px;
+      z-index: 500;
+      display: flex;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      padding: 4px 12px;
+      align-items: center;
+      gap: 8px;
+    }
+    .map-search-bar input {
+      border: none;
+      outline: none;
+      font-size: 0.85rem;
+      width: 100%;
+      padding: 6px 0;
+      color: var(--slate-900);
+    }
+    .search-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--slate-700);
+      font-size: 1rem;
+      padding: 4px;
+    }
+
+    /* Layer Switcher (Streets vs Satellite) */
+    .map-layer-switch {
+      position: absolute;
+      bottom: 24px;
+      left: 12px;
+      z-index: 500;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      display: flex;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .layer-btn {
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: none;
+      background: #fff;
+      color: var(--slate-700);
+      cursor: pointer;
+    }
+    .layer-btn.active {
+      background: #1a73e8;
+      color: #fff;
+    }
+
+    /* GPS Locate Button */
+    .btn-locate-float {
+      position: absolute;
+      bottom: 24px;
+      right: 12px;
+      z-index: 500;
+      background: #fff;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: #1a73e8;
+      transition: all 0.2s;
+    }
+    .btn-locate-float:hover {
+      background: #f1f3f4;
+      transform: scale(1.05);
+    }
+
+    /* Badges & Metrics */
+    .metric-box {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .metric-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+    .metric-val {
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--slate-900);
+    }
+    .metric-label {
+      font-size: 0.72rem;
+      color: var(--slate-700);
+      font-weight: 500;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .badge-success { background: #ceead6; color: #0d652d; }
+    .badge-warning { background: #feefc3; color: #b06000; }
+    .badge-danger { background: #fad2cf; color: #a50e0e; }
+    .badge-blue { background: #d2e3fc; color: #174ea6; }
+
+    /* Tables */
+    .data-table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.8rem;
+    }
+    table.data-table th {
+      background: var(--slate-50);
+      color: var(--slate-700);
+      font-weight: 700;
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+      font-size: 0.68rem;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    table.data-table td {
+      padding: 0.7rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    table.data-table tr:hover td {
+      background: #f8f9fa;
+    }
+
+    /* Demo Steps */
+    .demo-step-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem;
+      margin-bottom: 0.75rem;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+    .step-number-tag {
+      position: absolute;
+      top: -8px;
+      left: 10px;
+      background: var(--slate-800);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+    .dead-end-banner {
+      background: #fce8e6;
+      border-left: 4px solid var(--danger);
+      padding: 0.65rem 0.75rem;
+      border-radius: 6px;
+      color: #a50e0e;
+      font-size: 0.82rem;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .rec-card {
+      background: #e6f4ea;
+      border-left: 4px solid var(--success);
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-top: 0.5rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .btn-primary { background: #1a73e8; color: #fff; }
+    .btn-primary:hover { background: #1557b0; }
+    .btn-success { background: #1e8e3e; color: #fff; }
+    .btn-success:hover { background: #137333; }
+    .btn-danger { background: #d93025; color: #fff; }
+    .btn-outline {
+      background: #fff;
+      border-color: var(--border);
+      color: var(--slate-700);
+    }
+    .btn-outline:hover { background: #f1f3f4; }
+    .btn-sm {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.75rem;
+    }
+
+    /* Timeline */
+    .timeline-track {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin: 1.15rem 0 0.4rem;
+      padding: 0 0.4rem;
+    }
+    .timeline-track::before {
+      content: '';
+      position: absolute;
+      top: 14px;
+      left: 15px;
+      right: 15px;
+      height: 3px;
+      background: #dadce0;
+      z-index: 1;
+    }
+    .timeline-progress-bar {
+      position: absolute;
+      top: 14px;
+      left: 15px;
+      height: 3px;
+      background: #1a73e8;
+      z-index: 2;
+      width: 0%;
+      transition: width 0.6s ease;
+    }
+    .timeline-node {
+      position: relative;
+      z-index: 3;
+      text-align: center;
+      width: 65px;
+    }
+    .node-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid #bdc1c6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.25rem;
+      font-weight: 700;
+      font-size: 0.78rem;
+      color: var(--slate-700);
+      transition: all 0.3s ease;
+    }
+    .timeline-node.active .node-circle {
+      background: #1a73e8;
+      border-color: #1a73e8;
+      color: #fff;
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+    }
+    .timeline-node.completed .node-circle {
+      background: #1e8e3e;
+      border-color: #1e8e3e;
+      color: #fff;
+    }
+    .node-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--slate-800);
+      line-height: 1.1;
+    }
+    .node-time {
+      font-size: 0.62rem;
+      color: #70757a;
+    }
+
+    /* Feed List */
+    .live-feed-list {
+      max-height: 220px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .feed-item {
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      background: #f8f9fa;
+      border: 1px solid var(--border);
+      font-size: 0.78rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #202124;
+      color: #fff;
+      padding: 0.75rem 1.15rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: none;
+      z-index: 9999;
+      border-left: 4px solid #1e8e3e;
+      max-width: 340px;
+    }
+
+    /* Passport Card */
+    .passport-card {
+      max-width: 420px;
+      background: #fff;
+      color: var(--slate-900);
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin: 1rem auto;
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-top">
+      <div class="logo-group">
+        <div class="logo-badge">S</div>
+        <div>
+          <div class="brand-title">
+            SETU <span class="brand-telugu">సేతు</span>
+            <span style="font-size: 0.68rem; font-weight: 700; color: #1a73e8; background: #e8f0fe; padding: 2px 6px; border-radius: 4px;">Real-Time GIS Engine</span>
+          </div>
+          <div class="brand-sub" id="currentLocationSub">Smart Referral & Care Continuity Platform</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn-gps" onclick="detectUserLocation()">
+          <span>📍 Detect My Live Location</span>
+        </button>
+        <button class="btn-demo-pulse" id="btnHeaderDemo" onclick="runAutomated90sDemo()">
+          <span>▶ Run 90s Live Demo</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Bar (Tabs) -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('tabLiveShowcase')">🗺️ Interactive Map & Referral Demo</button>
+      <button class="tab-btn" onclick="switchTab('tabAdmin')">🛡️ Admin Command Center</button>
+      <button class="tab-btn" onclick="switchTab('tabDoctor')">🩺 Doctor Triage & Hand-Back</button>
+      <button class="tab-btn" onclick="switchTab('tabAsha')">🧕 ASHA Community Escalations</button>
+      <button class="tab-btn" onclick="switchTab('tabPassport')">🪪 Digital Care Passport</button>
+      <button class="tab-btn" onclick="switchTab('tabAnalytics')">📊 Capacity Analytics & Heatmap</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ==================== TAB 1: INTERACTIVE MAP & REFERRAL DEMO ==================== -->
+    <section id="tabLiveShowcase" class="tab-content active">
+      <div class="grid-2">
+        <!-- Left: Interactive Map with Search & GPS -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">
+                Regional Healthcare Network Map
+              </span>
+              <div style="display:flex; gap:0.35rem; align-items:center;">
+                <span id="mapLocLabel" style="font-size:0.75rem; color:#5f6368; font-weight:600;">Global / Live GPS</span>
+              </div>
+            </div>
+
+            <div class="card-body" style="padding: 0.35rem;">
+              <div class="map-wrapper">
+                <!-- Search Bar -->
+                <div class="map-search-bar">
+                  <span style="color:#5f6368;">🔍</span>
+                  <input type="text" id="mapSearchInput" placeholder="Search any city, hospital, or address..." onkeydown="if(event.key==='Enter') searchLocation()" />
+                  <button class="search-btn" onclick="searchLocation()">➔</button>
+                </div>
+
+                <!-- Map Container -->
+                <div id="interactiveMapBox"></div>
+
+                <!-- Street / Satellite Layer Switcher -->
+                <div class="map-layer-switch">
+                  <button class="layer-btn active" id="btnStreet" onclick="setMapLayer('street')">Map</button>
+                  <button class="layer-btn" id="btnSatellite" onclick="setMapLayer('satellite')">Satellite</button>
+                </div>
+
+                <!-- Crosshair GPS Locate Button -->
+                <button class="btn-locate-float" title="Center on my location" onclick="detectUserLocation()">
+                  ⌖
+                </button>
+              </div>
+
+              <!-- Map Legend -->
+              <div style="padding: 0.5rem; font-size: 0.72rem; color: #5f6368; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.35rem;">
+                <span>🔵 <strong>Your Current Location</strong></span>
+                <span>🔴 <strong>Dead-End (Specialist Absent)</strong></span>
+                <span>🟢 <strong>Optimal Referral (Specialist Ready)</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location Dispatcher Console -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">📝 Point-of-Care Dispatch Console</span>
+              <button class="btn btn-danger btn-sm" onclick="hwEmergencyBypass()">🚨 Golden-Hour Emergency Bypass</button>
+            </div>
+            <div class="card-body">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <div>
+                  <label style="display:block; font-size:0.72rem; font-weight:700; margin-bottom:2px;">Patient Details</label>
+                  <input type="text" id="hwPatientName" value="K. Ramana (54M, Acute Cardiac)" style="width:100%; padding:0.4rem; border:1px solid var(--border); border-radius:6px; font-size:0.8rem;" />
+                </div>
+                <div>
+                  <label style="display:block; font-size:0.72rem; font-weight:700; margin-bottom:2px;">Needed Specialty</label>
+                  <select id="hwSpecialist" style="width:100%; padding:0.4rem; border:1px solid var(--border); border-radius:6px; font-size:0.8rem;">
+                    <option value="Cardiology">Cardiology (Cath Lab / CCU)</option>
+                    <option value="Neurology">Neurology (Stroke Protocol)</option>
+                    <option value="Orthopedics">Orthopedics (Trauma ICU)</option>
+                    <option value="General Medicine">General Medicine</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:0.5rem;">
+                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="calculateDynamicRecommendation()">
+                  🔍 Calculate Optimal Referral Facility
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="triggerVoiceSearch()">
+                  🎤 Voice Search
+                </button>
+              </div>
+
+              <div id="hwRecBox" style="display:none; margin-top:0.65rem;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: 90s Live Demo Simulator -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">⚡ 90-Second Smart Referral Showcase</span>
+              <button class="btn btn-success btn-sm" onclick="runAutomated90sDemo()">▶ Run 90s Demo</button>
+            </div>
+            <div class="card-body">
+              <p style="font-size: 0.78rem; color: #5f6368; margin-bottom: 0.65rem;">
+                Live simulation of real-time dead-end detection, routing, and clinical handoff:
+              </p>
+
+              <!-- Step 1: Dead-End Encounter -->
+              <div class="demo-step-box" id="demoBox1">
+                <span class="step-number-tag">STEP 1: DEAD-END DETECTOR</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.2rem;">
+                  <div style="font-size:0.8rem;">
+                    <strong>Routine Target:</strong> <span id="demoFacilityA">Area Secondary Hospital</span>
+                  </div>
+                  <button class="btn btn-outline btn-sm" onclick="triggerDeadEndRejection()">Attempt</button>
+                </div>
+                <div id="deadEndResult" style="display:none;">
+                  <div class="dead-end-banner">
+                    <span style="font-size:1.1rem;">⚠️</span>
+                    <div>
+                      <strong>Dead-End Alert:</strong> Specialist absent / 100% ICU capacity full. Patient would be stranded!
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 2: Recommendation -->
+              <div class="demo-step-box" id="demoBox2" style="opacity:0.6;">
+                <span class="step-number-tag">STEP 2: SETU REAL-TIME RECOMMENDATION</span>
+                <div id="recommendationResult" style="display:none;">
+                  <div class="rec-card">
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                      <div>
+                        <div style="font-size:0.92rem; font-weight:800; color:#0d652d;" id="demoFacilityBTitle">
+                          🎯 Suggested: District Specialty Hospital
+                        </div>
+                        <div style="font-size:0.75rem; color:#0d652d; margin-top:0.15rem;" id="demoFacilityBReason">
+                          Specialist On Duty • 16 Available Beds • Cath Lab Ready
+                        </div>
+                        <div style="font-size:0.75rem; color:#0d652d;" id="demoFacilityBDistance">
+                          Distance: 18.4 km from your coordinates
+                        </div>
+                      </div>
+                      <span class="badge badge-success">95% Match</span>
+                    </div>
+                    <div style="margin-top:0.6rem;">
+                      <button class="btn btn-success btn-sm" onclick="confirmSuggestedReferral()">
+                        ✓ Confirm & Reserve Hospital Bed
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div id="recPlaceholder" style="font-size:0.75rem; color:#9aa0a6; margin-top:0.25rem;">
+                  Awaiting referral trigger...
+                </div>
+              </div>
+
+              <!-- Step 3: Care Journey Tracker -->
+              <div class="demo-step-box" id="demoBox3" style="opacity:0.6;">
+                <span class="step-number-tag">STEP 3: LIVE CARE JOURNEY TRACKER</span>
+                <div class="timeline-track">
+                  <div class="timeline-progress-bar" id="timelineBar"></div>
+                  <div class="timeline-node active" id="node1">
+                    <div class="node-circle">1</div>
+                    <div class="node-title">Initiated</div>
+                    <div class="node-time" id="timeNode1">Point of Care</div>
+                  </div>
+                  <div class="timeline-node" id="node2">
+                    <div class="node-circle">2</div>
+                    <div class="node-title">Dead-End</div>
+                    <div class="node-time">Avoided</div>
+                  </div>
+                  <div class="timeline-node" id="node3">
+                    <div class="node-circle">3</div>
+                    <div class="node-title">In Transit</div>
+                    <div class="node-time">Ambulance</div>
+                  </div>
+                  <div class="timeline-node" id="node4">
+                    <div class="node-circle">4</div>
+                    <div class="node-title">Admitted</div>
+                    <div class="node-time" id="timeNode4">Specialty Hosp</div>
+                  </div>
+                </div>
+                <div id="journeyStatusText" style="text-align:center; font-size:0.75rem; font-weight:600; color:#1a73e8; margin-top:0.2rem;">
+                  Awaiting referral confirmation...
+                </div>
+              </div>
+
+              <!-- Live Telemetry Feed -->
+              <div style="margin-top: 0.75rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                  <strong style="font-size:0.8rem;">📡 Live Telemetry Stream</strong>
+                  <span class="badge badge-success">Connected</span>
+                </div>
+                <div class="live-feed-list" id="demoLiveFeed"></div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: ADMIN COMMAND CENTER ==================== -->
+    <section id="tabAdmin" class="tab-content">
+      <div class="grid-4">
+        <div class="metric-box">
+          <div class="metric-icon" style="background:#e8f0fe; color:#1a73e8;">🏥</div>
+          <div>
+            <div class="metric-val" id="admTotalReferrals">--</div>
+            <div class="metric-label">Total Referrals</div>
+          </div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-icon" style="background:#ceead6; color:#0d652d;">⚡</div>
+          <div>
+            <div class="metric-val" id="admCompleted">--</div>
+            <div class="metric-label">Completed Consults</div>
+          </div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-icon" style="background:#feefc3; color:#b06000;">🚑</div>
+          <div>
+            <div class="metric-val" id="admInTransit">--</div>
+            <div class="metric-label">In Transit / Active</div>
+          </div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-icon" style="background:#fad2cf; color:#a50e0e;">🛡️</div>
+          <div>
+            <div class="metric-val" id="admEscalated">--</div>
+            <div class="metric-label">ASHA Escalations</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📋 Master Referral Register (State Central Database)</span>
+          <button class="btn btn-outline btn-sm" onclick="loadAdminReferralTable()">↻ Refresh</button>
+        </div>
+        <div class="card-body data-table-wrap">
+          <table class="data-table" id="tableAdminReferrals">
+            <thead>
+              <tr>
+                <th>Referral ID</th>
+                <th>Patient</th>
+                <th>Origin Facility</th>
+                <th>Destination Facility</th>
+                <th>Specialty</th>
+                <th>Urgency</th>
+                <th>Status</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: DOCTOR TRIAGE & HAND-BACK ==================== -->
+    <section id="tabDoctor" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🩺 District Hospital Specialist Portal</span>
+          <span class="badge badge-blue">Chief Duty Medical Officer</span>
+        </div>
+        <div class="card-body">
+          <p style="font-size: 0.8rem; color: #5f6368; margin-bottom: 0.75rem;">
+            Inbound referrals routed by Setu. Specialists can <strong>Accept</strong> admissions or trigger a <strong>Hand-Back</strong> with recovery notes to the referring clinic.
+          </p>
+          <div class="data-table-wrap">
+            <table class="data-table" id="tableDoctorInbox">
+              <thead>
+                <tr>
+                  <th>Referral ID</th>
+                  <th>Patient</th>
+                  <th>Origin</th>
+                  <th>Specialty</th>
+                  <th>Status</th>
+                  <th>Clinical Notes</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: ASHA ESCALATIONS ==================== -->
+    <section id="tabAsha" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🧕 ASHA Worker Community Escalation Hub</span>
+          </div>
+          <div class="card-body">
+            <p style="font-size: 0.8rem; color: #5f6368; margin-bottom: 0.75rem;">
+              Community health workers escalate high-risk cases directly, reserving institutional beds and ambulance escort.
+            </p>
+            <div style="background: #f8f9fa; border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem;">
+              <h4 style="font-size: 0.82rem; margin-bottom: 0.4rem;">Quick Community Escalation</h4>
+              <div style="margin-bottom: 0.4rem;">
+                <input type="text" id="ashaPatientName" placeholder="Patient Name (e.g. Saroja Devi, 26F)" style="width:100%; padding:0.4rem; border:1px solid var(--border); border-radius:6px; font-size:0.8rem;" />
+              </div>
+              <div style="margin-bottom: 0.5rem;">
+                <input type="text" id="ashaCondition" placeholder="Clinical Risk (e.g. High-Risk Pregnancy)" style="width:100%; padding:0.4rem; border:1px solid var(--border); border-radius:6px; font-size:0.8rem;" />
+              </div>
+              <button class="btn btn-warning btn-sm" onclick="triggerAshaEscalation()">
+                ⚡ Escalate with ASHA Escort
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">📍 Active ASHA Escort Cases</span>
+          </div>
+          <div class="card-body" id="ashaEscortList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: DIGITAL CARE PASSPORT ==================== -->
+    <section id="tabPassport" class="tab-content">
+      <div class="passport-card">
+        <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:0.75rem; margin-bottom:0.85rem;">
+          <div>
+            <div style="font-size:0.68rem; text-transform:uppercase; color:#5f6368; font-weight:700;">Government Health Authority</div>
+            <div style="font-size:1.1rem; font-weight:800; color:#1a73e8;">SETU CARE PASSPORT</div>
+          </div>
+          <span class="badge badge-blue">ABHA Verified</span>
+        </div>
+
+        <div style="display:flex; gap:0.85rem; align-items:center; margin-bottom:1rem;">
+          <div style="background:#f8f9fa; border:1px solid var(--border); padding:6px; border-radius:8px; width:80px; height:80px; display:flex; align-items:center; justify-content:center;">
+            <svg width="68" height="68" viewBox="0 0 100 100">
+              <rect width="100" height="100" fill="#fff"/>
+              <rect x="10" y="10" width="25" height="25" fill="#202124"/>
+              <rect x="65" y="10" width="25" height="25" fill="#202124"/>
+              <rect x="10" y="65" width="25" height="25" fill="#202124"/>
+              <rect x="16" y="16" width="13" height="13" fill="#fff"/>
+              <rect x="71" y="16" width="13" height="13" fill="#fff"/>
+              <rect x="16" y="71" width="13" height="13" fill="#fff"/>
+              <rect x="42" y="15" width="12" height="25" fill="#202124"/>
+              <rect x="45" y="55" width="30" height="10" fill="#202124"/>
+              <rect x="65" y="75" width="15" height="15" fill="#1a73e8"/>
+            </svg>
+          </div>
+          <div style="font-size:0.8rem;">
+            <div style="font-weight:800; font-size:0.95rem;" id="passName">K. Ramana</div>
+            <div style="color:#5f6368; font-size:0.72rem;">Age: 54 • Gender: Male</div>
+            <div style="color:#1a73e8; font-family:'JetBrains Mono', monospace; font-size:0.72rem; margin-top:0.2rem;">ABHA: 91-4920-1928-3312</div>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--border); padding-top:0.65rem; font-size:0.75rem;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+            <span style="color:#5f6368;">Active Referral:</span>
+            <span style="font-weight:700;" id="passRefId">SETU-TEL-410892</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+            <span style="color:#5f6368;">Handoff Facility:</span>
+            <span id="passHosp">District Specialty Hospital</span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="color:#5f6368;">Clinical Status:</span>
+            <span class="badge badge-success" id="passStatus">In Transit (Priority)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 6: CAPACITY ANALYTICS ==================== -->
+    <section id="tabAnalytics" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">📊 Referral Traffic by Target Facility</span>
+          </div>
+          <div class="card-body" id="analyticsBars"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🧠 Continuous Outcome-Learning Weights</span>
+          </div>
+          <div class="card-body" id="facilityWeightsList"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast Element -->
+  <div id="toast"></div>
+
+  <!-- JavaScript Engine -->
+  <script>
+    // Global State
+    let userCoords = { lat: 17.3850, lon: 78.4867 }; // Default Hyderabad / Telangana
+    let mapInstance = null;
+    let mapMarkers = {};
+    let activeRoute = null;
+    let streetLayer = null;
+    let satelliteLayer = null;
+    let activeLayerType = 'street';
+
+    // Facilities & Referrals
+    let facilities = [];
+    let referrals = [];
+
+    // Helper: Haversine distance in km
+    function calcDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2)**2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    // Generate local facilities relative to ANY coordinates (live GPS or searched location)
+    function generateFacilitiesAround(lat, lon, areaName = 'Local') {
+      return [
+        {
+          id: 'LOCAL_PHC',
+          name: `${areaName} Primary Care Post (Origin)`,
+          type: 'Point of Care Clinic',
+          lat: lat,
+          lon: lon,
+          specialists: ['General Medicine', 'Community Health'],
+          capacity: 4,
+          acceptanceRate: 0.65,
+          status: 'Source Facility'
+        },
+        {
+          id: 'LOCAL_AH_DEADEND',
+          name: `${areaName} Community Hospital (Secondary)`,
+          type: 'Community Hospital',
+          lat: lat + 0.042,
+          lon: lon + 0.038,
+          specialists: ['General Medicine', 'Pediatrics'],
+          capacity: 1,
+          acceptanceRate: 0.35,
+          status: 'Specialist On Leave (Dead-End Trigger)'
+        },
+        {
+          id: 'LOCAL_GGH_RECOMMENDED',
+          name: `${areaName} District Specialty Hospital`,
+          type: 'Tertiary Teaching Hospital',
+          lat: lat - 0.058,
+          lon: lon - 0.065,
+          specialists: ['Cardiology', 'Neurology', 'Orthopedics', 'General Surgery', 'ICU'],
+          capacity: 24,
+          acceptanceRate: 0.96,
+          status: 'Optimal Match • Active Cath Lab'
+        },
+        {
+          id: 'LOCAL_APEX_EMERGENCY',
+          name: `${areaName} Apex Medical Institute & Trauma Hub`,
+          type: 'Apex Trauma Center',
+          lat: lat + 0.125,
+          lon: lon - 0.110,
+          specialists: ['Cardiology', 'Neurology', 'Trauma ICU', 'Emergency Surgery'],
+          capacity: 45,
+          acceptanceRate: 0.99,
+          status: 'Emergency Level 1 Bypass Center'
+        }
+      ];
+    }
+
+    // Toast
+    function showToast(msg, isAlert = false) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.borderLeftColor = isAlert ? '#d93025' : '#1e8e3e';
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3500);
+    }
+
+    // Tabs
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
+
+      const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick')?.includes(tabId));
+      if (btn) btn.classList.add('active');
+
+      if (tabId === 'tabLiveShowcase' && mapInstance) {
+        setTimeout(() => mapInstance.invalidateSize(), 200);
+      }
+      if (tabId === 'tabAdmin') loadAdminReferralTable();
+      if (tabId === 'tabDoctor') loadDoctorInbox();
+      if (tabId === 'tabAsha') loadAshaEscortList();
+      if (tabId === 'tabAnalytics') renderAnalytics();
+    }
+
+    // Initialize Interactive Map
+    function initInteractiveMap() {
+      const container = document.getElementById('interactiveMapBox');
+      if (!container || mapInstance) return;
+
+      mapInstance = L.map('interactiveMapBox', {
+        zoomControl: false,
+        attributionControl: false
+      }).setView([userCoords.lat, userCoords.lon], 12);
+
+      // Google Maps Roadmap tiles
+      streetLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+        maxZoom: 20
+      }).addTo(mapInstance);
+
+      // Google Maps Satellite / Hybrid tiles
+      satelliteLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+        maxZoom: 20
+      });
+
+      L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
+
+      facilities = generateFacilitiesAround(userCoords.lat, userCoords.lon, 'Local');
+      renderMapPins();
+      setTimeout(() => mapInstance.invalidateSize(), 200);
+    }
+
+    function setMapLayer(type) {
+      if (type === activeLayerType || !mapInstance) return;
+      activeLayerType = type;
+      if (type === 'satellite') {
+        mapInstance.removeLayer(streetLayer);
+        mapInstance.addLayer(satelliteLayer);
+        document.getElementById('btnSatellite').classList.add('active');
+        document.getElementById('btnStreet').classList.remove('active');
+      } else {
+        mapInstance.removeLayer(satelliteLayer);
+        mapInstance.addLayer(streetLayer);
+        document.getElementById('btnStreet').classList.add('active');
+        document.getElementById('btnSatellite').classList.remove('active');
+      }
+    }
+
+    // Google Maps Markers (Custom Pins)
+    function renderMapPins() {
+      if (!mapInstance) return;
+      Object.values(mapMarkers).forEach(m => mapInstance.removeLayer(m));
+      mapMarkers = {};
+
+      facilities.forEach(f => {
+        const isUserLocation = (f.id === 'LOCAL_PHC');
+        const isDeadEnd = (f.id === 'LOCAL_AH_DEADEND');
+        const isRecommended = (f.id === 'LOCAL_GGH_RECOMMENDED');
+
+        let pinHtml = '';
+        let iconSize = [32, 40];
+        let iconAnchor = [16, 40];
+
+        if (isUserLocation) {
+          // Live Location Dot with Radar Pulse
+          pinHtml = `
+            <div style="position:relative; width:22px; height:22px;">
+              <div style="position:absolute; width:22px; height:22px; background:#1a73e8; border:3px solid #fff; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,0.4); z-index:2;"></div>
+              <div style="position:absolute; width:44px; height:44px; left:-11px; top:-11px; background:rgba(26,115,232,0.3); border-radius:50%; animation:pulse 2s infinite; z-index:1;"></div>
+            </div>
+          `;
+          iconSize = [22, 22];
+          iconAnchor = [11, 11];
+        } else {
+          // Hospital Pin with Hospital 'H'
+          const pinColor = isDeadEnd ? '#d93025' : (isRecommended ? '#1e8e3e' : '#1a73e8');
+          pinHtml = `
+            <div style="background:${pinColor}; width:28px; height:28px; border-radius:50% 50% 50% 0; transform:rotate(-45deg); display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.35); border:2px solid #fff;">
+              <span style="transform:rotate(45deg); color:#fff; font-weight:800; font-size:13px; font-family:sans-serif;">H</span>
+            </div>
+          `;
+          iconSize = [28, 28];
+          iconAnchor = [14, 28];
+        }
+
+        const customIcon = L.divIcon({
+          className: 'map-pin',
+          html: pinHtml,
+          iconSize: iconSize,
+          iconAnchor: iconAnchor
+        });
+
+        const marker = L.marker([f.lat, f.lon], { icon: customIcon }).addTo(mapInstance);
+        const dist = calcDistance(userCoords.lat, userCoords.lon, f.lat, f.lon);
+
+        marker.bindPopup(`
+          <div style="font-size:0.82rem; min-width:190px;">
+            <strong style="color:#202124; font-size:0.9rem;">${f.name}</strong><br/>
+            <span style="color:#5f6368;">${f.type}</span><br/>
+            ${!isUserLocation ? `Distance: <b>${dist.toFixed(1)} km</b><br/>` : ''}
+            Available Capacity: <b>${f.capacity} beds</b><br/>
+            Specialists: <b>${f.specialists.join(', ')}</b><br/>
+            Status: <span style="font-weight:700; color:${isDeadEnd ? '#d93025' : '#1e8e3e'};">${f.status}</span>
+          </div>
+        `);
+        mapMarkers[f.id] = marker;
+      });
+
+      updateDemoCardNames();
+    }
+
+    function updateDemoCardNames() {
+      const deadEndFac = facilities.find(f => f.id === 'LOCAL_AH_DEADEND');
+      const recFac = facilities.find(f => f.id === 'LOCAL_GGH_RECOMMENDED');
+      if (deadEndFac) {
+        document.getElementById('demoFacilityA').innerText = deadEndFac.name;
+      }
+      if (recFac) {
+        const dist = calcDistance(userCoords.lat, userCoords.lon, recFac.lat, recFac.lon);
+        document.getElementById('demoFacilityBTitle').innerText = `🎯 Suggested: ${recFac.name}`;
+        document.getElementById('demoFacilityBDistance').innerText = `Distance: ${dist.toFixed(1)} km from your current GPS`;
+      }
+    }
+
+    // Detect Live GPS Location
+    function detectUserLocation() {
+      showToast('📍 Requesting your GPS coordinates...');
+      if (!navigator.geolocation) {
+        showToast('Geolocation not supported by browser', true);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          userCoords.lat = pos.coords.latitude;
+          userCoords.lon = pos.coords.longitude;
+          showToast(`📍 GPS Detected: [${userCoords.lat.toFixed(4)}, ${userCoords.lon.toFixed(4)}]`);
+
+          if (mapInstance) {
+            mapInstance.flyTo([userCoords.lat, userCoords.lon], 13, { duration: 1.5 });
+          }
+
+          document.getElementById('mapLocLabel').innerText = '📍 Using Your Live GPS Location';
+          document.getElementById('currentLocationSub').innerText = `Referral Cluster: Lat ${userCoords.lat.toFixed(3)}, Lon ${userCoords.lon.toFixed(3)}`;
+
+          facilities = generateFacilitiesAround(userCoords.lat, userCoords.lon, 'Local');
+          renderMapPins();
+        },
+        (err) => {
+          console.warn('Geolocation error:', err);
+          showToast('GPS permission not granted. Defaulting to Central Hyderabad location.');
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    }
+
+    // Google Maps Style Search Bar
+    async function searchLocation() {
+      const q = document.getElementById('mapSearchInput').value.trim();
+      if (!q) return;
+      showToast(`🔍 Searching for "${q}"...`);
+
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        if (data && data.length > 0) {
+          const loc = data[0];
+          userCoords.lat = parseFloat(loc.lat);
+          userCoords.lon = parseFloat(loc.lon);
+
+          if (mapInstance) {
+            mapInstance.flyTo([userCoords.lat, userCoords.lon], 13, { duration: 1.5 });
+          }
+
+          const shortName = loc.display_name.split(',')[0];
+          document.getElementById('mapLocLabel').innerText = `📍 ${shortName}`;
+          document.getElementById('currentLocationSub').innerText = `Active Region: ${shortName}`;
+          showToast(`📍 Found: ${shortName}`);
+
+          facilities = generateFacilitiesAround(userCoords.lat, userCoords.lon, shortName);
+          renderMapPins();
+        } else {
+          showToast('Location not found, please try another query.', true);
+        }
+      } catch (e) {
+        showToast('Search request timed out', true);
+      }
+    }
+
+    // Voice Search
+    function triggerVoiceSearch() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        showToast('Voice Simulation: "Urgent Cardiology Referral"');
+        document.getElementById('hwSpecialist').value = 'Cardiology';
+        calculateDynamicRecommendation();
+        return;
+      }
+      const rec = new SpeechRecognition();
+      rec.lang = 'en-IN';
+      rec.onstart = () => { showToast('🔴 Listening... say specialty (e.g. Cardiology)'); };
+      rec.onresult = (e) => {
+        const text = e.results[0][0].transcript.toLowerCase();
+        if (text.includes('cardio') || text.includes('heart') || text.includes('chest')) {
+          document.getElementById('hwSpecialist').value = 'Cardiology';
+        } else if (text.includes('neuro') || text.includes('stroke')) {
+          document.getElementById('hwSpecialist').value = 'Neurology';
+        }
+        showToast(`Heard: "${text}"`);
+        calculateDynamicRecommendation();
+      };
+      rec.onerror = () => {
+        document.getElementById('hwSpecialist').value = 'Cardiology';
+        calculateDynamicRecommendation();
+      };
+      rec.start();
+    }
+
+    // ==================== 90s AUTOMATED LIVE DEMO ====================
+    async function runAutomated90sDemo() {
+      switchTab('tabLiveShowcase');
+      const btn = document.getElementById('btnHeaderDemo');
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Demo Running...';
+
+      // Reset
+      document.getElementById('deadEndResult').style.display = 'none';
+      document.getElementById('recommendationResult').style.display = 'none';
+      document.getElementById('recPlaceholder').style.display = 'block';
+      document.getElementById('demoBox2').style.opacity = '0.6';
+      document.getElementById('demoBox3').style.opacity = '0.6';
+      setTimelineProgress(0, 'Initiating referral at your location...');
+
+      if (activeRoute && mapInstance) {
+        mapInstance.removeLayer(activeRoute);
+        activeRoute = null;
+      }
+
+      const deadEndFac = facilities.find(f => f.id === 'LOCAL_AH_DEADEND');
+      const recFac = facilities.find(f => f.id === 'LOCAL_GGH_RECOMMENDED');
+
+      showToast(`🚀 Step 1: Attempting Referral to ${deadEndFac.name}`);
+      await sleep(1500);
+
+      // 1. Dead-End Tripped
+      triggerDeadEndRejection();
+      setTimelineProgress(33, 'Dead-End Tripped! Routine hospital bed full / specialist absent.');
+      await sleep(2200);
+
+      // 2. Recommend
+      document.getElementById('recPlaceholder').style.display = 'none';
+      document.getElementById('demoBox2').style.opacity = '1';
+      document.getElementById('recommendationResult').style.display = 'block';
+      showToast(`🎯 Setu Recommendation: ${recFac.name} (95% Confidence)`);
+
+      // Draw Animated route line
+      if (mapInstance) {
+        const origin = [userCoords.lat, userCoords.lon];
+        const dest = [recFac.lat, recFac.lon];
+        activeRoute = L.polyline([origin, dest], {
+          color: '#1a73e8',
+          weight: 5,
+          opacity: 0.85,
+          dashArray: '10, 10'
+        }).addTo(mapInstance);
+        mapInstance.fitBounds(activeRoute.getBounds(), { padding: [50, 50] });
+      }
+      await sleep(2000);
+
+      // 3. Confirm
+      await confirmSuggestedReferral();
+      setTimelineProgress(100, `Admission Guaranteed at ${recFac.name}!`);
+
+      btn.disabled = false;
+      btn.innerHTML = '▶ Re-Run 90s Demo';
+      showToast('🎉 90-Second Demo Completed with Live Coordinates!');
+    }
+
+    function triggerDeadEndRejection() {
+      document.getElementById('deadEndResult').style.display = 'block';
+      document.getElementById('demoBox2').style.opacity = '1';
+      document.getElementById('recPlaceholder').style.display = 'none';
+      document.getElementById('recommendationResult').style.display = 'block';
+
+      if (mapMarkers['LOCAL_AH_DEADEND']) {
+        mapMarkers['LOCAL_AH_DEADEND'].openPopup();
+      }
+      showToast('⚠️ Dead-End Tripped: Specialist absent! Referral declined.', true);
+    }
+
+    async function confirmSuggestedReferral() {
+      const recFac = facilities.find(f => f.id === 'LOCAL_GGH_RECOMMENDED') || facilities[2];
+      const dist = calcDistance(userCoords.lat, userCoords.lon, recFac.lat, recFac.lon);
+
+      const newRef = {
+        id: `SETU-${Math.floor(100000 + Math.random()*900000)}`,
+        patient_name: document.getElementById('hwPatientName').value || 'K. Ramana (54M)',
+        from: 'LOCAL_PHC',
+        from_name: facilities[0].name,
+        to: recFac.id,
+        to_name: recFac.name,
+        specialist: 'Cardiology',
+        urgency: 'Urgent',
+        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        status: 'In Transit',
+        notes: `Bed reserved in CCU. Distance: ${dist.toFixed(1)} km from live coordinates.`,
+        escalated: false
+      };
+
+      referrals.unshift(newRef);
+
+      try {
+        await fetch('/api/referral', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: 'LOCAL_PHC',
+            to: recFac.id,
+            specialist: 'Cardiology',
+            patient_name: newRef.patient_name
+          })
+        });
+      } catch (e) {}
+
+      document.getElementById('demoBox3').style.opacity = '1';
+      setTimelineProgress(66, 'Referral confirmed. Ambulance dispatched to hospital.');
+
+      // Update Passport
+      document.getElementById('passRefId').innerText = newRef.id;
+      document.getElementById('passHosp').innerText = recFac.name;
+      document.getElementById('passStatus').innerText = 'In Transit';
+
+      if (mapMarkers['LOCAL_GGH_RECOMMENDED']) {
+        mapMarkers['LOCAL_GGH_RECOMMENDED'].openPopup();
+      }
+
+      handleNewReferralEvent(newRef);
+      await sleep(1500);
+      setTimelineProgress(100, `Admitted to ${recFac.name}. Care Journey Closed.`);
+    }
+
+    function setTimelineProgress(pct, statusText) {
+      const bar = document.getElementById('timelineBar');
+      const text = document.getElementById('journeyStatusText');
+      if (bar) bar.style.width = pct + '%';
+      if (text) text.innerText = statusText;
+
+      const nodes = [document.getElementById('node1'), document.getElementById('node2'), document.getElementById('node3'), document.getElementById('node4')];
+      nodes.forEach((n, idx) => {
+        if (!n) return;
+        if (pct >= idx * 33) {
+          n.classList.add('active');
+          if (pct > idx * 33) n.classList.add('completed');
+        } else {
+          n.classList.remove('active', 'completed');
+        }
+      });
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // Dynamic Recommendation from Dispatch Console
+    function calculateDynamicRecommendation() {
+      const spec = document.getElementById('hwSpecialist').value;
+      const recFac = facilities.find(f => f.id === 'LOCAL_GGH_RECOMMENDED') || facilities[2];
+      const dist = calcDistance(userCoords.lat, userCoords.lon, recFac.lat, recFac.lon);
+
+      const box = document.getElementById('hwRecBox');
+      box.style.display = 'block';
+      box.innerHTML = `
+        <div style="background:#e6f4ea; border:1px solid #ceead6; border-radius:6px; padding:0.65rem;">
+          <div style="display:flex; justify-content:space-between; align-items:start;">
+            <div>
+              <strong style="color:#0d652d;">${recFac.name}</strong><br/>
+              <span style="font-size:0.72rem; color:#137333;">Distance: ${dist.toFixed(1)} km • ${recFac.capacity} Available Beds</span>
+            </div>
+            <span class="badge badge-success">95% Match</span>
+          </div>
+          <button class="btn btn-success btn-sm" style="margin-top:0.4rem;" onclick="confirmSuggestedReferral()">
+            Confirm Referral to this Facility
+          </button>
+        </div>
+      `;
+    }
+
+    async function hwEmergencyBypass() {
+      if (!confirm('Activate Direct Golden-Hour Bypass to Apex Emergency Center?')) return;
+      const apex = facilities.find(f => f.id === 'LOCAL_APEX_EMERGENCY') || facilities[3];
+      const newRef = {
+        id: `BYPASS-${Math.floor(10000 + Math.random()*90000)}`,
+        patient_name: document.getElementById('hwPatientName').value || 'Trauma Emergency',
+        from: 'LOCAL_PHC',
+        from_name: facilities[0].name,
+        to: apex.id,
+        to_name: apex.name,
+        specialist: 'Trauma ICU / Interventional Emergency',
+        urgency: 'CRITICAL BYPASS',
+        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        status: 'Emergency Dispatched',
+        notes: 'Golden-hour bypass activated. Direct transport to Apex Hub.',
+        escalated: false
+      };
+      referrals.unshift(newRef);
+      showToast('🚨 CRITICAL BYPASS ACTIVATED: Direct transport to Apex Center!', true);
+      handleNewReferralEvent(newRef);
+    }
+
+    // Telemetry & Table Handlers
+    function handleNewReferralEvent(ref) {
+      addLiveFeedItem(`New Referral: <strong>${ref.id}</strong> ➔ ${ref.to_name}`);
+      showToast(`⚡ Telemetry: ${ref.id} Confirmed!`);
+      updateAdminMetrics();
+      loadAdminReferralTable();
+      loadDoctorInbox();
+      renderAnalytics();
+    }
+
+    function addLiveFeedItem(msg) {
+      const feed = document.getElementById('demoLiveFeed');
+      if (!feed) return;
+      const item = document.createElement('div');
+      item.className = 'feed-item';
+      item.innerHTML = `<span>${msg}</span><span style="font-size:0.68rem; color:#70757a;">${new Date().toLocaleTimeString()}</span>`;
+      feed.insertBefore(item, feed.firstChild);
+    }
+
+    function renderLiveFeed() {
+      const feed = document.getElementById('demoLiveFeed');
+      if (!feed) return;
+      feed.innerHTML = '';
+      referrals.slice(0, 4).forEach(r => {
+        const item = document.createElement('div');
+        item.className = 'feed-item';
+        item.innerHTML = `<span><strong>${r.id}</strong>: ${r.patient_name} ➔ ${r.to_name || r.to}</span><span style="font-size:0.68rem; color:#70757a;">${r.status}</span>`;
+        feed.appendChild(item);
+      });
+    }
+
+    function updateAdminMetrics() {
+      document.getElementById('admTotalReferrals').innerText = referrals.length;
+      document.getElementById('admCompleted').innerText = referrals.filter(r => r.status === 'Completed').length;
+      document.getElementById('admInTransit').innerText = referrals.filter(r => r.status === 'In Transit' || r.status === 'Emergency Dispatched').length;
+      document.getElementById('admEscalated').innerText = referrals.filter(r => r.escalated).length;
+    }
+
+    function loadAdminReferralTable() {
+      const tbody = document.querySelector('#tableAdminReferrals tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      referrals.forEach(r => {
+        const tr = document.createElement('tr');
+        const badgeClass = r.status === 'Completed' ? 'badge-success' : (r.status === 'Emergency Dispatched' ? 'badge-danger' : 'badge-blue');
+        tr.innerHTML = `
+          <td><strong>${r.id}</strong></td>
+          <td>${r.patient_name}</td>
+          <td>${r.from_name || r.from}</td>
+          <td><strong>${r.to_name || r.to}</strong></td>
+          <td>${r.specialist}</td>
+          <td><span class="badge ${r.urgency?.includes('CRITICAL') ? 'badge-danger' : 'badge-warning'}">${r.urgency || 'Urgent'}</span></td>
+          <td><span class="badge ${badgeClass}">${r.status}</span></td>
+          <td style="color:#5f6368; font-size:0.75rem;">${r.timestamp}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function loadDoctorInbox() {
+      const tbody = document.querySelector('#tableDoctorInbox tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      referrals.slice(0, 8).forEach(r => {
+        const tr = document.createElement('tr');
+        const canAction = (r.status !== 'Completed' && r.status !== 'Handed-Back');
+        tr.innerHTML = `
+          <td><strong>${r.id}</strong></td>
+          <td>${r.patient_name}</td>
+          <td>${r.from_name || r.from}</td>
+          <td>${r.specialist}</td>
+          <td><span class="badge ${r.status === 'Completed' ? 'badge-success' : 'badge-blue'}">${r.status}</span></td>
+          <td style="font-size:0.75rem; color:#5f6368;">${r.notes || 'No notes'}</td>
+          <td>
+            ${canAction ? `
+              <div style="display:flex; gap:0.25rem;">
+                <button class="btn btn-success btn-sm" onclick="doctorAction('${r.id}', 'accept')">Accept</button>
+                <button class="btn btn-outline btn-sm" onclick="doctorAction('${r.id}', 'hand_back')">Hand-Back</button>
+              </div>
+            ` : '<span style="color:#1e8e3e; font-weight:700; font-size:0.75rem;">Admitted</span>'}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function doctorAction(id, action) {
+      const target = referrals.find(r => r.id === id);
+      if (target) {
+        target.status = (action === 'accept') ? 'Completed' : 'Handed-Back';
+        target.notes = (action === 'accept') ? 'Admitted to CCU. Vitals stable.' : 'Patient stabilized. Handed back to local care.';
+      }
+      showToast(`Doctor action "${action}" recorded.`);
+      loadDoctorInbox();
+      loadAdminReferralTable();
+    }
+
+    function loadAshaEscortList() {
+      const container = document.getElementById('ashaEscortList');
+      if (!container) return;
+      container.innerHTML = '';
+      const escalated = referrals.filter(r => r.escalated);
+      if (escalated.length === 0) {
+        container.innerHTML = '<div style="font-size:0.78rem; color:#70757a;">No active escort cases at this time.</div>';
+        return;
+      }
+      escalated.forEach(e => {
+        const item = document.createElement('div');
+        item.style = 'border:1px solid #feefc3; background:#fef7e0; border-radius:6px; padding:0.65rem; margin-bottom:0.4rem;';
+        item.innerHTML = `
+          <div style="display:flex; justify-content:space-between;">
+            <strong>${e.patient_name}</strong>
+            <span class="badge badge-warning">ASHA Priority</span>
+          </div>
+          <div style="font-size:0.72rem; color:#b06000; margin:0.15rem 0;">${e.notes}</div>
+          <div style="font-size:0.68rem; color:#804b00;">Destination: ${e.to_name} • ${e.timestamp}</div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function triggerAshaEscalation() {
+      const name = document.getElementById('ashaPatientName').value || 'High-Risk Maternal Case';
+      const cond = document.getElementById('ashaCondition').value || 'Maternal Alert';
+      const newRef = {
+        id: `ASHA-ESC-${Math.floor(10000 + Math.random()*90000)}`,
+        patient_name: `${name} (${cond})`,
+        from: 'LOCAL_PHC',
+        from_name: facilities[0].name,
+        to: facilities[2].id,
+        to_name: facilities[2].name,
+        specialist: 'High-Risk Obstetrics',
+        urgency: 'ASHA Priority Alert',
+        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        status: 'ASHA Assisted',
+        notes: 'Community health worker escorting patient for institutional admission.',
+        escalated: true
+      };
+      referrals.unshift(newRef);
+      showToast('⚡ ASHA Escalation Created!');
+      document.getElementById('ashaPatientName').value = '';
+      document.getElementById('ashaCondition').value = '';
+      loadAshaEscortList();
+      updateAdminMetrics();
+    }
+
+    function renderAnalytics() {
+      const container = document.getElementById('analyticsBars');
+      const weightsContainer = document.getElementById('facilityWeightsList');
+      if (!container || !weightsContainer) return;
+
+      container.innerHTML = '';
+      const counts = {};
+      referrals.forEach(r => {
+        const t = r.to_name || r.to;
+        counts[t] = (counts[t] || 0) + 1;
+      });
+
+      const maxVal = Math.max(...Object.values(counts), 1);
+      Object.entries(counts).forEach(([name, val]) => {
+        const pct = Math.round((val / maxVal) * 100);
+        const row = document.createElement('div');
+        row.style = 'margin-bottom:0.5rem;';
+        row.innerHTML = `
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:2px;">
+            <span>${name}</span>
+            <strong>${val} referrals</strong>
+          </div>
+          <div style="height:6px; background:#dadce0; border-radius:9999px; overflow:hidden;">
+            <div style="width:${pct}%; height:100%; background:#1a73e8; border-radius:9999px;"></div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      weightsContainer.innerHTML = '';
+      facilities.forEach(f => {
+        const row = document.createElement('div');
+        row.style = 'display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid #f1f3f4; font-size:0.78rem;';
+        row.innerHTML = `
+          <div>
+            <strong>${f.name}</strong><br/>
+            <span style="color:#70757a; font-size:0.7rem;">Capacity: ${f.capacity} beds</span>
+          </div>
+          <span class="badge ${f.acceptanceRate > 0.8 ? 'badge-success' : 'badge-warning'}">
+            ${Math.round(f.acceptanceRate * 100)}% Weight
+          </span>
+        `;
+        weightsContainer.appendChild(row);
+      });
+    }
+
+    // Window Load
+    window.addEventListener('DOMContentLoaded', () => {
+      initInteractiveMap();
+      renderLiveFeed();
+      updateAdminMetrics();
+      loadAdminReferralTable();
+      loadDoctorInbox();
+      loadAshaEscortList();
+
+      // Auto-detect GPS if available on load
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            userCoords.lat = pos.coords.latitude;
+            userCoords.lon = pos.coords.longitude;
+            if (mapInstance) {
+              mapInstance.setView([userCoords.lat, userCoords.lon], 13);
+            }
+            facilities = generateFacilitiesAround(userCoords.lat, userCoords.lon, 'Local');
+            renderMapPins();
+            document.getElementById('mapLocLabel').innerText = '📍 Using Your Live GPS Location';
+          },
+          () => {} // Silent failover to default coordinates
+        );
+      }
+    });
+  </script>
+</body>
+</html>
