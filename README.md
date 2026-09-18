@@ -1,6 +1,6 @@
-# SETU (సేతు) — Smart Referral & Care Continuity Platform
+# Project title: "GramDoctor : Rural Healthcare Access & Smart Referral Platform".
 
-**SIH 26133 Prototype** | Rural Telangana Healthcare Referral Network
+
 
 ---
 
